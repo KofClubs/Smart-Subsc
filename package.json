@@ -1,0 +1,26 @@
+{
+  "name": "smart-subsc",
+  "version": "0.1.0",
+  "description": "smart-subsc, a subscription system based on non-homogeneous tokens",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KofClubs/Smart-Subsc.git"
+  },
+  "keywords": [
+    "NFT",
+    "Subscription"
+  ],
+  "author": "Zhang Zhanpeng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KofClubs/Smart-Subsc/issues"
+  },
+  "homepage": "https://github.com/KofClubs/Smart-Subsc#readme"
+}
