@@ -274,3 +274,8 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+build/
+node_modules/
+
+test/deployment.yaml

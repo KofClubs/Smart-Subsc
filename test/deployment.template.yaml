@@ -1,0 +1,11 @@
+protocol: "http"
+host: "127.0.0.1"
+port: "7545"
+gas: 6721975
+gasPrice: 20000000000
+
+SmartSubsc_address: "0x..."
+server_address: "0x..."
+client_addresses:
+  - "0x..."
+  - "0x..."
