@@ -278,4 +278,4 @@ TSWLatexianTemp*
 build/
 node_modules/
 
-test/deployment.yaml
+deployment.yaml

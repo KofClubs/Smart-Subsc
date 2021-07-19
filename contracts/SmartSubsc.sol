@@ -17,6 +17,10 @@ contract SmartSubsc is ERC721 {
         priceSet = false;
     }
 
+    event PriceSet(uint256 _price);
+    event SubscriptionPurchased(address _by, uint256 _tokenId);
+    event SubscriptionConsumed(uint256 _tokenId);
+
     modifier subscriptionVerified(address _owner, uint256 _tokenId) {
         require(_owner == ownerOf(_tokenId));
         require(server == getApproved(_tokenId));
@@ -27,6 +31,7 @@ contract SmartSubsc is ERC721 {
         require(msg.sender == server);
         price = _price;
         priceSet = true;
+        emit PriceSet(price);
     }
 
     function consumeSubscription(address _owner, uint256 _tokenId)
@@ -35,6 +40,7 @@ contract SmartSubsc is ERC721 {
     {
         require(msg.sender == server);
         _burn(_tokenId);
+        emit SubscriptionConsumed(_tokenId);
     }
 
     function getServer() public view returns (address) {
@@ -46,13 +52,13 @@ contract SmartSubsc is ERC721 {
         return price;
     }
 
-    function purchaseSubscription() public payable returns (uint256) {
+    function purchaseSubscription() public payable {
         require(priceSet);
         uint256 newDeposit = deposits[msg.sender] + msg.value - price;
         require(newDeposit >= 0);
         deposits[msg.sender] = newDeposit;
-        _mint(msg.sender, tokenIdMax);
+        _safeMint(msg.sender, tokenIdMax);
         approve(server, tokenIdMax);
-        return tokenIdMax++;
+        emit SubscriptionPurchased(msg.sender, tokenIdMax++);
     }
 }
