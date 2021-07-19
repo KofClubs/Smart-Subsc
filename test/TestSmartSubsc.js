@@ -26,11 +26,6 @@ contract('SmartSubsc', function (accounts) {
             let _symbol = await instance.symbol()
             assert.equal(_symbol.valueOf(), expectedSymbol, 'wrong symbol')
         })
-
-        it('server shall be "' + serverAddress + '"', async () => {
-            let server = await instance.getServer()
-            assert.equal(server.valueOf(), serverAddress, 'wrong server')
-        })
     })
 
     describe('test other functions', async () => {

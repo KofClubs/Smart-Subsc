@@ -43,10 +43,6 @@ contract SmartSubsc is ERC721 {
         emit SubscriptionConsumed(_tokenId);
     }
 
-    function getServer() public view returns (address) {
-        return server;
-    }
-
     function getPrice() public view returns (uint256) {
         require(priceSet);
         return price;
