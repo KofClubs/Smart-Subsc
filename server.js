@@ -20,8 +20,9 @@ const smartSubscContract = new web3.eth.Contract(smartSubscAbi, deployment.Smart
 
 console.log('The server is supported to execute the following functions:')
 console.log('1. updatePrice')
-console.log('2. activateSubscription')
-console.log('3. expireSubscription')
+console.log('2. updateServiceFeeRate')
+console.log('3. activateSubscription')
+console.log('4. expireSubscription')
 console.log('Type something else to exit.')
 readline.question('What is the number corresponding to the function to be executed?\n', number => {
     switch (number) {
@@ -29,9 +30,12 @@ readline.question('What is the number corresponding to the function to be execut
             excuteUpdatePrice()
             break
         case '2':
-            excuteActivateSubscription()
+            excuteUpdateServiceFeeRate()
             break
         case '3':
+            excuteActivateSubscription()
+            break
+        case '4':
             excuteExpireSubscription()
             break
         default:
@@ -51,10 +55,20 @@ function excuteUpdatePrice() {
     })
 }
 
+function excuteUpdateServiceFeeRate() {
+    readline.question('What is the service fee rate to be set in %?\n', _serviceFeeRate => {
+        smartSubscContract.methods.updateServiceFeeRate(_serviceFeeRate).send({
+            from: serverAddress
+        }).then(receipt => {
+            console.log(receipt)
+        })
+        readline.close()
+    })
+}
+
 function excuteActivateSubscription() {
-    let _owner, _tokenId
-    readline.question('What is the address of the owner?\n', owner => {
-        _owner = owner
+    let _tokenId
+    readline.question('What is the address of the owner?\n', _owner => {
         readline.question('What is the ID of the token?\n', tokenId => {
             _tokenId = Number(tokenId)
             smartSubscContract.methods.activateSubscription(_owner, _tokenId).send({

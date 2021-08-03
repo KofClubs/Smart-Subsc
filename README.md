@@ -6,7 +6,7 @@ Smart-Subsc 基于非同质化代币（non-fungible token，NFT）实现了购�
 
 1.1. 安装 [Node.js](https://nodejs.org/zh-cn/)、[Truffle](https://www.trufflesuite.com/truffle) 和 [Ganache](https://www.trufflesuite.com/ganache)。
 
-1.2. 克隆本仓库，安装 Node.js 模块。
+1.2. 执行下列命令，克隆本仓库，安装 Node.js 模块。
 
 ```shell
 $ git clone https://github.com/KofClubs/Smart-Subsc.git
@@ -19,16 +19,16 @@ $ npm install
 1.4. 执行下列命令，在本地先后编译、测试 [`contracts/SmartSubsc.sol`](https://github.com/KofClubs/Smart-Subsc/blob/main/contracts/SmartSubsc.sol)。
 
 ```shell
-truffle compile
-truffle test
-truffle migrate
+$ truffle compile
+$ truffle test
+$ truffle migrate
 ```
 
-1.5. 在 [`migrations/2_deploy_smartsubsc.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/migrations/2_deploy_smartsubsc.js) 可选地更改初始价格（PRICE_NUMBER）和单位（PRICE_UNIT），请参考 `toWei` 的[文档](https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#towei)。
+1.5. 在 [`migrations/2_deploy_smartsubsc.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/migrations/2_deploy_smartsubsc.js) 可选地更改初始价格 PRICE_NUMBER 和单位 PRICE_UNIT（请参考 `toWei` 的[文档](https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#towei)），以及取款服务费率 SERVICE_FEE_RATE，它的单位是%。
 
 ```javascript
     6 module.exports = function (deployer) {
---> 7     deployer.deploy(SmartSubsc, web3.utils.toWei(PRICE_NUMBER, PRICE_UNIT));
+--> 7     deployer.deploy(SmartSubsc, web3.utils.toWei(PRICE_NUMBER, PRICE_UNIT), SERVICE_FEE_RATE);
     8 };
 ```
 
@@ -36,7 +36,8 @@ truffle migrate
 
 ## 2. 服务流程
 
-![flowchart](https://github.com/KofClubs/Smart-Subsc/blob/main/assets/flowchart.png)
+(TODO)
+<!-- ![flowchart](https://github.com/KofClubs/Smart-Subsc/blob/main/assets/flowchart.png) -->
 
 ## -1. TODOs
 
