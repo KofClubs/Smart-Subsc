@@ -16,7 +16,7 @@ $ npm install
 
 1.3. 根据 [`truffle-config.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/truffle-config.js)，新建和设置 Ganache 工作空间。
 
-1.4. 执行下列命令，在本地先后编译、测试和部署 [`SmartSubsc` 合约](https://github.com/KofClubs/Smart-Subsc/blob/main/contracts/SmartSubsc.sol)。
+1.4. 执行下列命令，在本地先后编译、测试 [`contracts/SmartSubsc.sol`](https://github.com/KofClubs/Smart-Subsc/blob/main/contracts/SmartSubsc.sol)。
 
 ```shell
 truffle compile
@@ -24,7 +24,15 @@ truffle test
 truffle migrate
 ```
 
-1.5. 通过 [`client.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/client.js) 和 [`server.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/server.js) 跟合约交互，实现客户端和服务端的功能。
+1.5. 在 [`migrations/2_deploy_smartsubsc.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/migrations/2_deploy_smartsubsc.js) 可选地更改初始价格（PRICE_NUMBER）和单位（PRICE_UNIT），请参考 `toWei` 的[文档](https://web3js.readthedocs.io/en/v1.2.11/web3-utils.html#towei)。
+
+```javascript
+    6 module.exports = function (deployer) {
+--> 7     deployer.deploy(SmartSubsc, web3.utils.toWei(PRICE_NUMBER, PRICE_UNIT));
+    8 };
+```
+
+1.6. 通过 [`client.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/client.js) 和 [`server.js`](https://github.com/KofClubs/Smart-Subsc/blob/main/server.js) 跟合约交互，实现客户端和服务端的功能。
 
 ## 2. 服务流程
 

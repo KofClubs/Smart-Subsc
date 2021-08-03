@@ -8,53 +8,78 @@ contract SmartSubsc is ERC721 {
     string private constant _symbol = "SS";
     address private server;
     uint256 private price;
-    bool private priceSet;
     uint256 private tokenIdMax;
     mapping(address => uint256) private deposits;
 
-    constructor() payable ERC721(_name, _symbol) {
+    constructor(uint256 _price) payable ERC721(_name, _symbol) {
         server = msg.sender;
-        priceSet = false;
+        price = _price;
     }
 
-    event PriceSet(uint256 _price);
-    event SubscriptionPurchased(address _by, uint256 _tokenId);
-    event SubscriptionConsumed(uint256 _tokenId);
+    event PriceUpdated(uint256 _price);
+    event SubscriptionActivated(address _owner, uint256 _tokenId);
+    event SubscriptionExpired(uint256 _tokenId);
+    event SubscriptionPurchased(address _to, uint256 _tokenId);
+    event SubscriptioCanceled(uint256 _tokenId);
 
-    modifier subscriptionVerified(address _owner, uint256 _tokenId) {
+    modifier subscriptionNotActivated(address _owner, uint256 _tokenId) {
         require(_owner == ownerOf(_tokenId));
-        require(server == getApproved(_tokenId));
+        require(getApproved(_tokenId) == server);
         _;
     }
 
-    function setPrice(uint256 _price) public {
-        require(msg.sender == server);
-        price = _price;
-        priceSet = true;
-        emit PriceSet(price);
+    modifier subscriptionNotExpired(uint256 _tokenId) {
+        require(ownerOf(_tokenId) == server);
+        _;
     }
 
-    function consumeSubscription(address _owner, uint256 _tokenId)
-        public
-        subscriptionVerified(_owner, _tokenId)
-    {
-        require(msg.sender == server);
-        _burn(_tokenId);
-        emit SubscriptionConsumed(_tokenId);
+    function getServer() public view returns (address) {
+        return server;
     }
 
     function getPrice() public view returns (uint256) {
-        require(priceSet);
         return price;
     }
 
+    function updatePrice(uint256 _price) public {
+        require(msg.sender == server);
+        price = _price;
+        emit PriceUpdated(price);
+    }
+
+    function activateSubscription(address _owner, uint256 _tokenId)
+        public
+        subscriptionNotActivated(_owner, _tokenId)
+    {
+        require(msg.sender == server);
+        safeTransferFrom(_owner, server, _tokenId);
+        emit SubscriptionActivated(_owner, _tokenId);
+    }
+
+    function expireSubscription(uint256 _tokenId)
+        public
+        subscriptionNotExpired(_tokenId)
+    {
+        require(msg.sender == server);
+        _burn(_tokenId);
+        emit SubscriptionExpired(_tokenId);
+    }
+
     function purchaseSubscription() public payable {
-        require(priceSet);
         uint256 newDeposit = deposits[msg.sender] + msg.value - price;
         require(newDeposit >= 0);
         deposits[msg.sender] = newDeposit;
         _safeMint(msg.sender, tokenIdMax);
         approve(server, tokenIdMax);
         emit SubscriptionPurchased(msg.sender, tokenIdMax++);
+    }
+
+    function cancelSubscription(uint256 _tokenId)
+        public
+        subscriptionNotActivated(msg.sender, _tokenId)
+    {
+        deposits[msg.sender] += price;
+        _burn(_tokenId);
+        emit SubscriptioCanceled(_tokenId);
     }
 }

@@ -1,61 +1,111 @@
-var SmartSubsc = artifacts.require('SmartSubsc')
-const truffleAssert = require('truffle-assertions')
+const SmartSubsc = artifacts.require('SmartSubsc')
 
-var Web3 = require('web3')
-var web3 = new Web3()
+const TruffleAssert = require('truffle-assertions')
 
-contract('SmartSubsc', function (accounts) {
+const Web3 = require('web3')
+const web3 = new Web3()
+
+contract('SmartSubsc', accounts => {
     const expectedName = 'SmartSubsc'
     const expectedSymbol = 'SS'
-    const expectedPrice = web3.utils.toWei('1', 'ether')
+    const oldPrice = web3.utils.toWei('1', 'ether'), newPrice = web3.utils.toWei('2', 'ether')
+    const oldPriceStr = '1 ether', newPriceStr = '2 ether'
+    const transferredValue = web3.utils.toWei('2', 'ether') /* >= oldPrice * 2 */
+    const serverAddress = accounts[0], clientAddress = accounts[1]
 
-    const serverAddress = accounts[0]
-    const clientAddress = accounts[1]
-
-    beforeEach('deploy the contract for test', async () => {
-        instance = await SmartSubsc.new()
+    beforeEach('deploy testing contract', async () => {
+        instance = await SmartSubsc.new(oldPrice)
     })
 
     describe('test constructor', async () => {
-        it('its name shall be "' + expectedName + '"', async () => {
+        it('name shall be "' + expectedName + '"', async () => {
             let _name = await instance.name()
             assert.equal(_name.valueOf(), expectedName, 'wrong name')
         })
 
-        it('its symbol shall be "' + expectedSymbol + '"', async () => {
+        it('symbol shall be "' + expectedSymbol + '"', async () => {
             let _symbol = await instance.symbol()
             assert.equal(_symbol.valueOf(), expectedSymbol, 'wrong symbol')
         })
+
+        it('server shall be "' + serverAddress + '"', async () => {
+            let server = await instance.getServer()
+            assert.equal(server, serverAddress, 'wrong server address by getServer')
+        })
+
+        it('price shall be "' + oldPriceStr + '"', async () => {
+            let price = await instance.getPrice()
+            assert.equal(price.valueOf().toString(), oldPrice.toString(), 'wrong price by getPrice')
+        })
     })
 
-    describe('test other functions', async () => {
-        it('set and get price, purchase and consume subscription', async () => {
-            let setPriceResult = await instance.setPrice(expectedPrice, {
+    describe('test updatePrice', async () => {
+        it('set price to "' + newPriceStr + '"', async () => {
+            let updatePriceResult = await instance.updatePrice(newPrice, {
                 from: serverAddress
             })
-            truffleAssert.eventEmitted(setPriceResult, 'PriceSet', (ev) => {
-                return ev._price.toString() === expectedPrice.toString()
-            }, 'wrong price by PriceSet')
+            TruffleAssert.eventEmitted(updatePriceResult, 'PriceUpdated', (ev) => {
+                return ev._price.toString() === newPrice.toString()
+            }, 'wrong price by PriceUpdated')
+        })
+    })
 
-            let price = await instance.getPrice()
-            assert.equal(price.valueOf().toString(), expectedPrice.toString(), 'wrong price by getPrice')
+    describe('test purchaseSubscription and cancelSubscription, try repurchase', async () => {
+        let canceledTokenId, repurchasedTokenId
 
-            let tokenId = -1
+        it('purchase and cancel subscription', async () => {
             let purchaseSubscriptionResult = await instance.purchaseSubscription({
                 from: clientAddress,
-                value: web3.utils.toWei("2", "ether")
+                value: transferredValue
             })
-            truffleAssert.eventEmitted(purchaseSubscriptionResult, 'SubscriptionPurchased', (ev) => {
-                tokenId = ev._tokenId
-                return ev._by === clientAddress
-            }, 'purchase failed')
+            TruffleAssert.eventEmitted(purchaseSubscriptionResult, 'SubscriptionPurchased', (ev) => {
+                canceledTokenId = ev._tokenId
+                return ev._to === clientAddress
+            }, 'SubscriptionPurchased not emitted')
 
-            let consumeSubscriptionResult = await instance.consumeSubscription(clientAddress, tokenId, {
+            let cancelSubscriptionResult = await instance.cancelSubscription(canceledTokenId, {
+                from: clientAddress
+            })
+            TruffleAssert.eventEmitted(cancelSubscriptionResult, 'SubscriptioCanceled', (ev) => {
+                return ev._tokenId.toString() === canceledTokenId.toString()
+            }, 'cancelSubscription failed')
+
+            let repurchaseSubscriptionResult = await instance.purchaseSubscription({
+                from: clientAddress
+            })
+            TruffleAssert.eventEmitted(repurchaseSubscriptionResult, 'SubscriptionPurchased', (ev) => {
+                repurchasedTokenId = ev._tokenId
+                return ev._to === clientAddress && repurchasedTokenId != canceledTokenId
+            }, 'repurchase failed')
+        })
+    })
+
+    describe('test activateSubscription and expireSubscription', async () => {
+        let tokenId
+
+        it('purchase subscription, then activate and expire it', async () => {
+            let purchaseSubscriptionResult = await instance.purchaseSubscription({
+                from: clientAddress,
+                value: transferredValue
+            })
+            TruffleAssert.eventEmitted(purchaseSubscriptionResult, 'SubscriptionPurchased', (ev) => {
+                tokenId = ev._tokenId
+                return ev._to === clientAddress
+            }, 'SubscriptionPurchased not emitted')
+
+            let activateSubscriptionResult = await instance.activateSubscription(clientAddress, tokenId, {
                 from: serverAddress
             })
-            truffleAssert.eventEmitted(consumeSubscriptionResult, 'SubscriptionConsumed', (ev) => {
+            TruffleAssert.eventEmitted(activateSubscriptionResult, 'SubscriptionActivated', (ev) => {
+                return ev._owner === clientAddress && ev._tokenId.toString() === tokenId.toString()
+            }, 'activateSubscription failed')
+
+            let expireSubscriptionResult = await instance.expireSubscription(tokenId, {
+                from: serverAddress
+            })
+            TruffleAssert.eventEmitted(expireSubscriptionResult, 'SubscriptionExpired', (ev) => {
                 return ev._tokenId.toString() === tokenId.toString()
-            }, 'consume failed')
+            }, 'expireSubscription failed')
         })
     })
 })
