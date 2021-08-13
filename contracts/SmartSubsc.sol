@@ -105,6 +105,7 @@ contract SmartSubsc is ERC721 {
     }
 
     function withdraw(uint256 _value) public {
+        require(_value > 0);
         require(_value <= deposits[msg.sender]);
         deposits[msg.sender] -= _value;
         uint256 actualValue = (_value / 100) * serviceFeeRate;
