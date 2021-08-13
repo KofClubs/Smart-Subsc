@@ -19,23 +19,15 @@ const smartSubscContract = new web3.eth.Contract(smartSubscAbi, deployment.Smart
 })
 
 console.log('The server is supported to execute the following functions:')
-console.log('1. updatePrice')
-console.log('2. updateServiceFeeRate')
-console.log('3. activateSubscription')
-console.log('4. expireSubscription')
+console.log('1. activateSubscription')
+console.log('2. expireSubscription')
 console.log('Type something else to exit.')
 readline.question('What is the number corresponding to the function to be executed?\n', number => {
     switch (number) {
         case '1':
-            excuteUpdatePrice()
-            break
-        case '2':
-            excuteUpdateServiceFeeRate()
-            break
-        case '3':
             excuteActivateSubscription()
             break
-        case '4':
+        case '2':
             excuteExpireSubscription()
             break
         default:
@@ -43,28 +35,6 @@ readline.question('What is the number corresponding to the function to be execut
             process.exit()
     }
 })
-
-function excuteUpdatePrice() {
-    readline.question('What is the price to be set in ETH?\n', _price => {
-        smartSubscContract.methods.updatePrice(web3.utils.toWei(_price, "ether")).send({
-            from: serverAddress
-        }).then(receipt => {
-            console.log(receipt)
-        })
-        readline.close()
-    })
-}
-
-function excuteUpdateServiceFeeRate() {
-    readline.question('What is the service fee rate to be set in %?\n', _serviceFeeRate => {
-        smartSubscContract.methods.updateServiceFeeRate(_serviceFeeRate).send({
-            from: serverAddress
-        }).then(receipt => {
-            console.log(receipt)
-        })
-        readline.close()
-    })
-}
 
 function excuteActivateSubscription() {
     let _tokenId
