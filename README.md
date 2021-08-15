@@ -2,7 +2,7 @@
 
 Smart-Subsc 基于非同质化代币（non-fungible token，NFT）实现了购买和订阅服务。
 
-Smart-Subsc 实现了链上支付和链下支付，分别在 [on-chain-pay 分支](https://github.com/KofClubs/Smart-Subsc/tree/on-chain-pay) 和 [off-chain-pay 分支](https://github.com/KofClubs/Smart-Subsc/tree/off-chain-pay)。链上支付要求客户端支付以太币购买订阅；链下支付要求服务端确认非同质化代币的合法性（客户端能自由铸造）。
+Smart-Subsc 实现了链上支付和链下支付，分别在 [on-chain-pay 分支](https://github.com/KofClubs/Smart-Subsc/tree/on-chain-pay)和 [off-chain-pay 分支](https://github.com/KofClubs/Smart-Subsc/tree/off-chain-pay)。链上支付要求客户端支付以太币购买订阅；链下支付要求服务端确认非同质化代币的合法性（客户端能自由铸造）。
 
 ## 1. 部署、测试和使用
 
@@ -36,10 +36,9 @@ $ truffle migrate
 
 1.6. 通过 [client.js](https://github.com/KofClubs/Smart-Subsc/blob/on-chain-pay/client.js) 和 [server.js](https://github.com/KofClubs/Smart-Subsc/blob/on-chain-pay/server.js) 跟合约交互，实现客户端和服务端的功能。
 
-## 2. 服务流程
+## 2. 软件架构
 
-(TODO)
-<!-- ![flowchart](https://github.com/KofClubs/Smart-Subsc/blob/on-chain-pay/assets/flowchart.png) -->
+![software architecture](https://github.com/KofClubs/Smart-Subsc/blob/on-chain-pay/assets/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84.png)
 
 ## 3. 构造合约和调用合约函数的手续费
 
